@@ -95,9 +95,9 @@ def validate_input(
 
 
 def merge_chunked_msa(
+    qid: int, sequence: str,
     results: Sequence[Mapping[str, Any]],
-    max_hits: Optional[int] = None,
-    qid: int, sequence: str
+    max_hits: Optional[int] = None
     ) -> parsers.Msa:
   """Merges chunked database hits together into hits for the full database."""
   unsorted_results = []
