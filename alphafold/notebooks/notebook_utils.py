@@ -123,7 +123,7 @@ def merge_chunked_msa(
     for seq,mtx,dsc in zip(merged_sequences,merged_deletion_matrix,merged_descriptions):
       c = (np.array(list(seq)) != "-").sum()
       q = (np.array(list(seq)) == np.array(list(sequence))).sum()
-      if c > 0 and q/c > qid:
+      if c > 0 and q/c > qid/100:
         new_seqs.append(seq)
         new_mtxs.append(mtx)
         new_dscs.append(dsc)
