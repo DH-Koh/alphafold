@@ -95,7 +95,7 @@ def validate_input(
 
 
 def merge_chunked_msa(
-    qid: int, sequence: str,
+    qid: int, sequence: str, outgroup: str,
     results: Sequence[Mapping[str, Any]],
     max_hits: Optional[int] = None
     ) -> parsers.Msa:
@@ -115,6 +115,7 @@ def merge_chunked_msa(
   sorted_by_evalue = sorted(unsorted_results, key=lambda x: x[-1])
   merged_sequences, merged_deletion_matrix, merged_descriptions, _ = zip(
       *sorted_by_evalue)
+  
   if qid > 0:
     filtered = 0
     new_seqs = []
@@ -133,6 +134,26 @@ def merge_chunked_msa(
     merged_deletion_matrix = new_mtxs
     merged_descriptions = new_dscs
     print(f"Filtered {filtered} number of sequences less than {qid}% identity with query")
+    
+  if outgroup:
+    filtered = 0
+    new_seqs = []
+    new_mtxs = []
+    new_dscs = []
+    for seq,mtx,dsc in zip(merged_sequences,merged_deletion_matrix,merged_descriptions):
+      queryseqid = (np.array(list(seq)) == np.array(list(sequence))).sum()
+      outgroupid = (np.array(list(seq)) == np.array(list(outgroup))).sum()
+      if queryseqid > outgroupid:
+        new_seqs.append(seq)
+        new_mtxs.append(mtx)
+        new_dscs.append(dsc)
+      else:
+        filtered += 1
+    merged_sequences = new_seqs
+    merged_deletion_matrix = new_mtxs
+    merged_descriptions = new_dscs
+    print(f"Filtered {filtered} number of sequences less than {qid}% identity with query")
+    
   merged_msa = parsers.Msa(sequences=merged_sequences,
                            deletion_matrix=merged_deletion_matrix,
                            descriptions=merged_descriptions)
