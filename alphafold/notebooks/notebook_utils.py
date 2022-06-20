@@ -117,6 +117,7 @@ def merge_chunked_msa(
       *sorted_by_evalue)
   
   if qid > 0:
+    print('MSAs will be filtered by identity with query')
     filtered = 0
     new_seqs = []
     new_mtxs = []
@@ -135,7 +136,8 @@ def merge_chunked_msa(
     merged_descriptions = new_dscs
     print(f"Filtered {filtered} number of sequences less than {qid}% identity with query")
     
-  if len(outgroup) == len(sequence):
+  if outgroup:
+    print('MSAs will be filtered by identity with outgroup')
     filtered = 0
     new_seqs = []
     new_mtxs = []
