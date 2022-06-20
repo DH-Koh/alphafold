@@ -135,24 +135,27 @@ def merge_chunked_msa(
     merged_descriptions = new_dscs
     print(f"Filtered {filtered} number of sequences less than {qid}% identity with query")
     
-  if outgroup:
+  if len(outgroup) == len(sequence):
     filtered = 0
     new_seqs = []
     new_mtxs = []
     new_dscs = []
     for seq,mtx,dsc in zip(merged_sequences,merged_deletion_matrix,merged_descriptions):
-      queryseqid = (np.array(list(seq)) == np.array(list(sequence))).sum()
-      outgroupid = (np.array(list(seq)) == np.array(list(outgroup))).sum()
-      if queryseqid > outgroupid:
-        new_seqs.append(seq)
-        new_mtxs.append(mtx)
-        new_dscs.append(dsc)
+      if len(seq) != len(sequence) and seq:
+        raise ValueError(f"MSA have {len(seq)} length sequence but query is {len(sequence)} length sequence")
       else:
-        filtered += 1
+        queryseqid = (np.array(list(seq)) == np.array(list(sequence))).sum()
+        outgroupid = (np.array(list(seq)) == np.array(list(outgroup))).sum()
+        if queryseqid >= outgroupid:
+          new_seqs.append(seq)
+          new_mtxs.append(mtx)
+          new_dscs.append(dsc)
+        else:
+          filtered += 1
     merged_sequences = new_seqs
     merged_deletion_matrix = new_mtxs
     merged_descriptions = new_dscs
-    print(f"Filtered {filtered} number of sequences less than {qid}% identity with query")
+    print(f"Filtered {filtered} number of sequences closer to outgroup than query")
     
   merged_msa = parsers.Msa(sequences=merged_sequences,
                            deletion_matrix=merged_deletion_matrix,
