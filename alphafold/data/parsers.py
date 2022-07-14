@@ -521,6 +521,21 @@ def parse_e_values_from_tblout(tblout: str) -> Dict[str, float]:
   return e_values
 
 
+def parse_taxids_from_tblout(tblout: str) -> Dict[str, int]:
+  """Parse target to e-value mapping parsed from Jackhmmer tblout string."""
+  taxids = {'query': 9606}
+  lines = [line for line in tblout.splitlines() if line[0] != '#']
+  for line in lines:
+    fields = line.split()
+    taxid = fields[-2][6:]
+    target_name = fields[0]
+    if taxid == 'N/A':
+      taxids[target_name] = 0
+    else:
+      taxids[target_name] = int(taxid)
+  return taxids
+
+
 def _get_indices(sequence: str, start: int) -> List[int]:
   """Returns indices for non-gap/insert residues starting at the given index."""
   indices = []
