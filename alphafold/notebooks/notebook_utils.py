@@ -101,26 +101,24 @@ def merge_chunked_msa(
     ) -> parsers.Msa:
   """Merges chunked database hits together into hits for the full database."""
   unsorted_results = []
-  for chunk_index, chunk in enumerate(results):
-    msa = parsers.parse_stockholm(chunk['sto'])
-    e_values_dict = parsers.parse_e_values_from_tblout(chunk['tbl'])
-    taxids_dict = parsers.parse_taxids_from_tblout(chunk['tbl'])
-    # Jackhmmer lists sequences as <sequence name>/<residue from>-<residue to>.
-    e_values = [e_values_dict[t.partition('/')[0]] for t in msa.descriptions]
-    taxids = [taxids_dict[t.partition('/')[0]] for t in msa.descriptions]
-    chunk_results = zip(
-        msa.sequences, msa.deletion_matrix, msa.descriptions, taxids, e_values)
-    if chunk_index != 0:
-      next(chunk_results)  # Only take query (first hit) from the first chunk.
-    unsorted_results.extend(chunk_results)
-
-  sorted_by_evalue = sorted(unsorted_results, key=lambda x: x[-1])
-  merged_sequences, merged_deletion_matrix, merged_descriptions, merged_taxids, _ = zip(
-      *sorted_by_evalue)
-  
-  if condition:
-    print('MSAs will be filtered by condition')
+  if 'tax' in condition:
+    for chunk_index, chunk in enumerate(results):
+      msa = parsers.parse_stockholm(chunk['sto'])
+      e_values_dict = parsers.parse_e_values_from_tblout(chunk['tbl'])
+      taxids_dict = parsers.parse_taxids_from_tblout(chunk['tbl'])
+      # Jackhmmer lists sequences as <sequence name>/<residue from>-<residue to>.
+      e_values = [e_values_dict[t.partition('/')[0]] for t in msa.descriptions]
+      taxids = [taxids_dict[t.partition('/')[0]] for t in msa.descriptions]
+      chunk_results = zip(
+          msa.sequences, msa.deletion_matrix, msa.descriptions, taxids, e_values)
+      if chunk_index != 0:
+        next(chunk_results)  # Only take query (first hit) from the first chunk.
+      unsorted_results.extend(chunk_results)
+    sorted_by_evalue = sorted(unsorted_results, key=lambda x: x[-1])
+    merged_sequences, merged_deletion_matrix, merged_descriptions, merged_taxids, _ = zip(
+        *sorted_by_evalue)
     nod_dict = pickle.load(open('nod_dict.pickle',"rb"))
+    print('MSAs will be filtered by condition')
     filtered = 0
     new_seqs = []
     new_mtxs = []
@@ -136,6 +134,38 @@ def merge_chunked_msa(
     merged_deletion_matrix = new_mtxs
     merged_descriptions = new_dscs
     print(f"Filtered {filtered} number of sequences by condition")
+    
+  else:
+    for chunk_index, chunk in enumerate(results):
+      msa = parsers.parse_stockholm(chunk['sto'])
+      e_values_dict = parsers.parse_e_values_from_tblout(chunk['tbl'])
+      # Jackhmmer lists sequences as <sequence name>/<residue from>-<residue to>.
+      e_values = [e_values_dict[t.partition('/')[0]] for t in msa.descriptions]
+      chunk_results = zip(
+          msa.sequences, msa.deletion_matrix, msa.descriptions, e_values)
+      if chunk_index != 0:
+        next(chunk_results)  # Only take query (first hit) from the first chunk.
+      unsorted_results.extend(chunk_results)
+    sorted_by_evalue = sorted(unsorted_results, key=lambda x: x[-1])
+    merged_sequences, merged_deletion_matrix, merged_descriptions, _ = zip(
+        *sorted_by_evalue)
+    if condition:
+      print('MSAs will be filtered by condition')
+      filtered = 0
+      new_seqs = []
+      new_mtxs = []
+      new_dscs = []
+      for seq,mtx,dsc in zip(merged_sequences,merged_deletion_matrix,merged_descriptions):
+        if eval(condition):
+          new_seqs.append(seq)
+          new_mtxs.append(mtx)
+          new_dscs.append(dsc)
+        else:
+          filtered += 1
+      merged_sequences = new_seqs
+      merged_deletion_matrix = new_mtxs
+      merged_descriptions = new_dscs
+      print(f"Filtered {filtered} number of sequences by condition")
     
   merged_msa = parsers.Msa(sequences=merged_sequences,
                            deletion_matrix=merged_deletion_matrix,
