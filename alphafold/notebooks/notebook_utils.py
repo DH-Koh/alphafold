@@ -21,6 +21,7 @@ from alphafold.common import residue_constants
 from alphafold.data import parsers
 from matplotlib import pyplot as plt
 import numpy as np
+import pickle
 
 
 @enum.unique
