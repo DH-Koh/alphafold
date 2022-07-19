@@ -521,9 +521,9 @@ def parse_e_values_from_tblout(tblout: str) -> Dict[str, float]:
   return e_values
 
 
-def parse_taxids_from_tblout(tblout: str) -> Dict[str, int]:
+def parse_taxids_from_tblout(tblout: str, query_organism: int) -> Dict[str, int]:
   """Parse target to e-value mapping parsed from Jackhmmer tblout string."""
-  taxids = {'query': 9606}
+  taxids = {'query': query_organism}
   lines = [line for line in tblout.splitlines() if line[0] != '#']
   for line in lines:
     fields = line.split()
