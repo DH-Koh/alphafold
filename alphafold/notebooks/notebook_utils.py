@@ -96,17 +96,17 @@ def validate_input(
 
 
 def merge_chunked_msa(
-    query: str, condition: str,
+    query: str, condition: str, query_organism: int,
     results: Sequence[Mapping[str, Any]],
     max_hits: Optional[int] = None
     ) -> parsers.Msa:
   """Merges chunked database hits together into hits for the full database."""
   unsorted_results = []
-  if 'tax' in condition:
+  if 'tax' in condition:     
     for chunk_index, chunk in enumerate(results):
       msa = parsers.parse_stockholm(chunk['sto'])
       e_values_dict = parsers.parse_e_values_from_tblout(chunk['tbl'])
-      taxids_dict = parsers.parse_taxids_from_tblout(chunk['tbl'])
+      taxids_dict = parsers.parse_taxids_from_tblout(chunk['tbl'], query_organism)
       # Jackhmmer lists sequences as <sequence name>/<residue from>-<residue to>.
       e_values = [e_values_dict[t.partition('/')[0]] for t in msa.descriptions]
       taxids = [taxids_dict[t.partition('/')[0]] for t in msa.descriptions]
