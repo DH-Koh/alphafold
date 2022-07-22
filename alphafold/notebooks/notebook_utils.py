@@ -138,9 +138,9 @@ def merge_chunked_msa(
     merged_deletion_matrix = new_mtxs
     merged_descriptions = new_dscs
     with open('prediction/msas/qids.txt', 'w+') as f1:
-      f1.write('\n'.join(all_qids))
+      f1.write('\n'.join(str(s) for s in all_qids))
     with open('prediction/msas/taxs.txt', 'w+') as f2:
-      f2.write('\n'.join(merged_taxids))
+      f2.write('\n'.join(str(s) for s in merged_taxids))
     print(f"Filtered {filtered} number of sequences by condition")
     
   else:
