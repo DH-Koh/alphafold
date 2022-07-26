@@ -116,7 +116,7 @@ def merge_chunked_msa(
         next(chunk_results)  # Only take query (first hit) from the first chunk.
       unsorted_results.extend(chunk_results)
     sorted_by_evalue = sorted(unsorted_results, key=lambda x: x[-1])
-    merged_sequences, merged_deletion_matrix, merged_descriptions, merged_taxids, _ = zip(
+    merged_sequences, merged_deletion_matrix, merged_descriptions, merged_taxids, merged_evalue = zip(
         *sorted_by_evalue)
     nod_dict = pickle.load(open('nod_dict.pickle',"rb"))
     print('MSAs will be filtered by condition')
@@ -141,6 +141,8 @@ def merge_chunked_msa(
       f1.write('\n'.join(str(s) for s in all_qids))
     with open('prediction/msas/taxs.txt', 'w+') as f2:
       f2.write('\n'.join(str(s) for s in merged_taxids))
+    with open('prediction/msas/eval.txt', 'w+') as f3:
+      f3.write('\n'.join(str(s) for s in merged_evalue))
     print(f"Filtered {filtered} number of sequences by condition")
     
   else:
