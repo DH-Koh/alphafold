@@ -163,6 +163,7 @@ def merge_chunked_msa(
       new_seqs = []
       new_mtxs = []
       new_dscs = []
+      all_qids = []
       for seq,mtx,dsc in zip(merged_sequences,merged_deletion_matrix,merged_descriptions):
         qid = (np.array(list(seq)) == np.array(list(query))).sum() / (np.array(list(seq)) != '-').sum()
         all_qids.append(qid)
